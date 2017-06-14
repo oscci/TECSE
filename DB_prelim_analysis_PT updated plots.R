@@ -33,10 +33,11 @@ myrawdata$TEC.IO<-rowSums(myrawdata[,85:94])/10
 
 # v clunky way of creating age bands
 myrawdata$ageband<-1
-myrawdata$ageband[myrawdata[,4]>43]=2
+myrawdata$ageband[myrawdata[,4]>44]=2
 myrawdata$ageband[myrawdata[,4]>47]=3
-myrawdata$ageband[myrawdata[,4]>51]=4
-myrawdata$ageband[myrawdata[,4]>55]=5
+myrawdata$ageband[myrawdata[,4]>50]=4
+myrawdata$ageband[myrawdata[,4]>53]=5
+myrawdata$ageband[myrawdata[,4]>56]=6
 
 # aggregate data frame for percentages correct, returning means and SDs
 # NB This does not take into account that for TRC chance is .25, but for TECS it is .5
@@ -78,6 +79,7 @@ raw_long$ttt<-factor(stringr::str_extract(raw_long$factor, "TRC|TEC"))
 raw_long$resp<-factor(raw_long$resp,levels=c(2,1,0))
 raw_long$ageband<-as.factor(raw_long$ageband)
 
+levels(raw_long$ttt)<-c("Animation","Multiple choice")
 
 library(dplyr)
 raw_summary <- raw_long %>% 
@@ -92,11 +94,15 @@ for(i in 1:length(raw_summary[,1]))
 raw_summary$prop[i]<-raw_summary$count[i]/sum(raw_summary$count[raw_summary$ageband==raw_summary$ageband[i]&raw_summary$clause==raw_summary$clause[i]&raw_summary$ttt==raw_summary$ttt[i]])
 }
 
+raw_summary$clause<-factor(raw_summary$clause,levels = c("SI","ST","Obj","Obl","IO"))
+
 library(ggplot2)
 windows(record=T)
+
+myPalette<-c("purple","red","pink")
 ggplot(data=raw_summary, aes(x=ageband,y=prop,fill=resp)) +
-  geom_bar(stat="identity")+facet_grid(ttt ~ clause) +
-   theme(legend.position = "top") + theme_bw() + ylab("")#+ scale_fill_grey(start = 0.5, end = .8)
+geom_bar(stat="identity")+facet_grid(ttt ~ clause, switch="y") +
+theme_bw() + theme(legend.position = "top",legend.title=element_blank())  + ylab("Proportion of responses")+xlab("Age band")+scale_fill_manual(values=myPalette)
 
 
 ###################################################################################################################
