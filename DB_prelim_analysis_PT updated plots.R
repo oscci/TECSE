@@ -31,7 +31,7 @@ myrawdata$TEC.O<-rowSums(myrawdata[,65:74])/10
 myrawdata$TEC.Obl<-rowSums(myrawdata[,75:84])/10
 myrawdata$TEC.IO<-rowSums(myrawdata[,85:94])/10
 
-# v clunky way of creating age bands
+# create age bands
 myrawdata$ageband<-1
 myrawdata$ageband[myrawdata[,4]>44]=2
 myrawdata$ageband[myrawdata[,4]>47]=3
@@ -70,16 +70,23 @@ for (j in 95:99){
 names(myrawdata)[108]<-"TRC.Obj.pf"
 names(myrawdata)[113]<-"TEC.Obj.pf"
 
+#subset data
+
 sub.raw<-myrawdata[,c("ID","ageband","TRC.SI.pf","TEC.SI.pf","TRC.ST.pf","TEC.ST.pf","TRC.Obj.pf","TEC.Obj.pf","TRC.Obl.pf","TEC.Obl.pf","TRC.IO.pf","TEC.IO.pf")]
 
 raw_long<-tidyr::gather(sub.raw,factor,resp,TRC.SI.pf:TEC.IO.pf)
+
+#create factors according to subgroup coding patterns.
 
 raw_long$clause<-factor(stringr::str_extract(raw_long$factor,paste(c("SI","ST","Obj","Obl","IO"), collapse="|") ))
 raw_long$ttt<-factor(stringr::str_extract(raw_long$factor, "TRC|TEC"))
 raw_long$resp<-factor(raw_long$resp,levels=c(2,1,0))
 raw_long$ageband<-as.factor(raw_long$ageband)
+levels(raw_long$ageband)<-c("41","44","47","50","53","56")
 
 levels(raw_long$ttt)<-c("Animation","Multiple choice")
+
+#Obtain frequencies for the barplot.
 
 library(dplyr)
 raw_summary <- raw_long %>% 
@@ -88,6 +95,8 @@ raw_summary <- raw_long %>%
 
 raw_summary<-as.data.frame(raw_summary)
 raw_summary$prop<-vector(mode="numeric",length=length(raw_summary[,1]))
+
+#calculate as proportions.
 
 for(i in 1:length(raw_summary[,1]))
 {
@@ -99,72 +108,12 @@ raw_summary$clause<-factor(raw_summary$clause,levels = c("SI","ST","Obj","Obl","
 library(ggplot2)
 windows(record=T)
 
-myPalette<-c("purple","red","pink")
+#Final barplot of data (panelled according to the TEST and Clause type).
+
+myPalette<-c("Black","grey50","grey90")
 ggplot(data=raw_summary, aes(x=ageband,y=prop,fill=resp)) +
-geom_bar(stat="identity")+facet_grid(ttt ~ clause, switch="y") +
-theme_bw() + theme(legend.position = "top",legend.title=element_blank())  + ylab("Proportion of responses")+xlab("Age band")+scale_fill_manual(values=myPalette)
+geom_bar(stat="identity")+facet_grid(ttt ~ clause) +
+theme_bw() + theme(legend.position = "top",legend.title=element_blank(),axis.text=element_text(size=25),
+                   axis.title=element_text(size=25),strip.text = element_text(size = 25, face ="bold"),legend.text=element_text(size=25)) + ylab("Proportion of responses")+xlab("Age (months)")+scale_fill_manual(values=myPalette)
 
-
-###################################################################################################################
-
-# #jpeg("plots1.jpg")
-# par(mfrow=c(2,1))
-# temp<-table(myrawdata$ageband,myrawdata$TRC.SI.pf)
-# TRC_SI_tab<-temp/rowSums(temp)
-# barplot(t(TRC_SI_tab), main="TRC_Subject Intransitive",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# temp<-table(myrawdata$ageband,myrawdata$TEC.SI.pf)
-# TEC_SI_tab<-temp/rowSums(temp)
-# barplot(t(TEC_SI_tab), main="TECS_Subject Intransitive",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# #dev.off()
-# 
-# 
-# #jpeg("plots2.jpg")
-# par(mfrow=c(2,1))
-# temp<-table(myrawdata$ageband,myrawdata$TRC.ST.pf)
-# TRC_ST_tab<-temp/rowSums(temp)
-# barplot(t(TRC_ST_tab), main="TRC_Subject Transitive",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# temp<-table(myrawdata$ageband,myrawdata$TEC.ST.pf)
-# TEC_ST_tab<-temp/rowSums(temp)
-# barplot(t(TEC_ST_tab), main="TECS_Subject Transitive",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# #dev.off()
-# 
-# #jpeg("plots3.jpg")
-# par(mfrow=c(2,1))
-# temp<-table(myrawdata$ageband,myrawdata$TRC.Obj.pf)
-# TRC_O_tab<-temp/rowSums(temp)
-# barplot(t(TRC_O_tab), main="TRC_Object",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# temp<-table(myrawdata$ageband,myrawdata$TEC.Obj.pf)
-# TEC_O_tab<-temp/rowSums(temp)
-# barplot(t(TEC_O_tab), main="TECS_Object",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# #dev.off()
-# 
-# #jpeg("plots4.jpg")
-# par(mfrow=c(2,1))
-# temp<-table(myrawdata$ageband,myrawdata$TRC.Obl.pf)
-# TRC_Obl_tab<-temp/rowSums(temp)
-# barplot(t(TRC_Obl_tab), main="TRC_Oblique",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# temp<-table(myrawdata$ageband,myrawdata$TEC.Obl.pf)
-# TEC_Obl_tab<-temp/rowSums(temp)
-# barplot(t(TEC_Obl_tab), main="TECS_Oblique",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# #dev.off()
-# 
-# #jpeg("plots5.jpg")
-# par(mfrow=c(2,1))
-# temp<-table(myrawdata$ageband,myrawdata$TRC.IO.pf)
-# TRC_IO_tab<-temp/rowSums(temp)
-# barplot(t(TRC_IO_tab), main="TRC_Indirect Object",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# temp<-table(myrawdata$ageband,myrawdata$TEC.IO.pf)
-# TEC_IO_tab<-temp/rowSums(temp)
-# barplot(t(TEC_IO_tab), main="TECS_Indirect Object",
-#         xlab="Age band", col=c("pink","red","purple")) 
-# #dev.off()
 

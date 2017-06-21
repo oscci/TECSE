@@ -1,6 +1,6 @@
 ###########################################################
 #
-# Script for multiple comparisons
+# Script for hierarchical linear regressions on total scores 
 #
 ###########################################################
 
@@ -30,40 +30,33 @@ names(pauline.dat3)<-c("ID","Age","Tecse_TS","TRC_TS","sentRec_SS","DAP_m")
 #remove ids with missing data, so models are comparable.
 pauline.dat3A<-as.data.frame(subset(pauline.dat3,!is.na(pauline.dat3$DAP_m)))
 
+####################################################################################
+
+#Perform multiple linear regresssions using likelihood ratio test and difference in R-squared values to determine inclusion|exclusion of predictors.
+
 
 #TRC
 
 lm0<-lm(TRC_TS~Age,data=pauline.dat3A)
 lm1<-lm(TRC_TS~Age+sentRec_SS,data=pauline.dat3A)
-lm2<-lm(TRC_TS~Age+DAP_m,data=pauline.dat3A)
-lm3<-lm(TRC_TS~Age+sentRec_SS+DAP_m,data=pauline.dat3A) #according to likelihood ratio test, best fitting model.
-anova(lm0,lm1)
-anova(lm0,lm2)
-anova(lm1,lm3)
-anova(lm2,lm3)
+lm2<-lm(TRC_TS~Age+sentRec_SS+DAP_m,data=pauline.dat3A) #according to likelihood ratio test, best fitting model.
+anova(lm0,lm1,lm2)
 
 #TECSE
 
 lm0B<-lm(Tecse_TS~Age,data=pauline.dat3A)
 lm1B<-lm(Tecse_TS~Age+sentRec_SS,data=pauline.dat3A)
-lm2B<-lm(Tecse_TS~Age+DAP_m,data=pauline.dat3A)
-lm3B<-lm(Tecse_TS~Age+sentRec_SS+DAP_m,data=pauline.dat3A)#according to likelihood ratio test, best fitting model.
-anova(lm0B,lm1B)
-anova(lm0B,lm2B)
-anova(lm1B,lm3B)
-anova(lm2B,lm3B)
+lm2B<-lm(Tecse_TS~Age+sentRec_SS+DAP_m,data=pauline.dat3A)#according to likelihood ratio test, best fitting model.
+anova(lm0B,lm1B,lm2B)
+
 
 
 #################
+#Get model summaries and diagnostic plots for final regressions.
 
-summary(lm3)
-summary(lm3B)
+summary(lm2)
+summary(lm2B)
 par(mfrow=c(2,2))
-plot(lm3)
-plot(lm3B)
-
-
-anova(lm0,lm1,lm2,lm3)
-
-anova(lm0B,lm1B,lm2B,lm3B)
+plot(lm2)
+plot(lm2B)
 
