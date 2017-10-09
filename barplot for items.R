@@ -61,20 +61,25 @@ ag_dat<-aggregate(resp ~ clause+ttt+item, pauline_long2, sum)
 
 library(ggplot2)
 
-levels(ag_dat$ttt)<-c("Animation","Multiple choice")
+levels(ag_dat$ttt)<-c("TECSE","TRC")
 
 
-levels(ag_dat$clause)<-c("IO","SI","Obj","Obl","ST")
+levels(ag_dat$clause)<-c("Indirect Object","Intransitive","Object","Oblique","Transitive")
   
   
 
-ag_dat$clause<-factor(ag_dat$clause,levels=c("SI", "ST", "Obj", "Obl", "IO"))
+ag_dat$clause<-factor(ag_dat$clause,levels=c("Intransitive", "Transitive", "Object", "Oblique", "Indirect Object"))
 
-myPalette<-c("blue","red")
+myPalette<-c("grey","black")
 
-ggplot(data=ag_dat, aes(x=item, y=resp, fill=ttt)) +
+
+my.gen.resp<-expand.grid(clause=c("Indirect Object","Intransitive","Object","Oblique","Transitive"), ttt=c("TECSE","TRC"),item=5:10,resp=0)
+
+ag_dat2<-rbind(ag_dat,my.gen.resp)
+
+ggplot(data=ag_dat2, aes(x=item, y=resp, fill=ttt)) +
   geom_bar(stat="identity",position="dodge")+facet_grid(. ~ clause) +
-  coord_flip() + theme_bw()+ theme(legend.position = "top",legend.title = element_blank())  + ylab("Counts of correct responses")+scale_fill_manual(values=myPalette)
+  coord_flip() + theme_bw()+ theme(legend.position = "right",legend.title = element_blank(),strip.text.x = element_text(size = 14),axis.title = element_text(size = 14),legend.text = element_text(size=12),axis.text = element_text(size=12))  + ylab("Counts of correct responses")+scale_fill_manual(values=myPalette)
 
 
 
